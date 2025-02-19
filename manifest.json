@@ -4,7 +4,7 @@
   "description": "Retro Bowl College",
   "icons": [
     {
-      "src": "retrobowlcollege.png",
+      "src": "/retrobowlcollege.png",
       "sizes": "512x512",
       "type": "image/png"
     }

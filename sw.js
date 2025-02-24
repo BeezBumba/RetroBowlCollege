@@ -5,9 +5,8 @@ self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(cacheName)
         .then(cache => {
-            return cache.addAll(
-                self.__precacheManifest
-            );
+            console.log('Precache Manifest:', self.__precacheManifest); // Log the precache manifest
+            return cache.addAll(self.__precacheManifest);
         })
     );
 });

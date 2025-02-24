@@ -1,37 +1,41 @@
-const KEY = 'RETROBOWLCOLLEGE';
+const cacheName = 'RETROBOWLCOLLEGE';
 
-self.addEventListener('install', (event) => {
-    event.waitUntil(self.skipWaiting());
+// Install event
+self.addEventListener('install', event => {
+    event.waitUntil(
+        caches.open(cacheName)
+        .then(cache => {
+            return cache.addAll(
+                self.__precacheManifest
+            );
+        })
+    );
 });
 
-self.addEventListener('message', (event) => {
-    if (event.data.type === 'CACHE_URLS') {
-        event.waitUntil(
-            caches.open(KEY)
-                .then( (cache) => {
-                    return cache.addAll(event.data.payload);
-                })
-        );
-    }
+// Fetch event
+self.addEventListener('fetch', event => {
+    event.respondWith(
+        caches.match(event.request)
+        .then(response => {
+            // Cache hit - return response
+            if (response) {
+                return response;
+            }
+            return fetch(event.request);
+        })
+    );
 });
 
-self.addEventListener("fetch", (e) => {
-  e.respondWith(
-    (async () => {
-      try {
-       console.log(`[Service Worker] Attempting live fetch: ${e.request.url}`);
-       const response = await fetch(e.request);
-       const cache = await caches.open(KEY);
-       console.log(`[Service Worker] Caching new resource: ${e.request.url}`);
-       cache.put(e.request, response.clone());
-       return response;
-      } catch (err) {
-        console.log(`[Service Worker] Attempting to serve resource from cache: ${e.request.url}`);
-        const r = await caches.match(e.request);
-        if (r) {
-          return r;
-        }
-      }
-    })()
-  );
+// Activate event
+self.addEventListener('activate', event => {
+    const cacheWhitelist = [cacheName];
+    event.waitUntil(
+        caches.keys().then(keyList => {
+            return Promise.all(keyList.map(key => {
+                if (!cacheWhitelist.includes(key)) {
+                    return caches.delete(key);
+                }
+            }));
+        })
+    );
 });

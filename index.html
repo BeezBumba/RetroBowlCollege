@@ -152,6 +152,15 @@
     <!-- Builtin injector for injecting google analytics code -->
 
 <script src="register_sw.js"></script>
+<script>
+        window.onerror = function (message, source, lineno, colno, error) {
+            alert(`Error: ${message}\nSource: ${source}\nLine: ${lineno}\nColumn: ${colno}\nError object: ${error}`);
+            return true; // Prevents the default browser error handling
+        };
+
+        // Example of throwing an error to test the alert
+        console.error("This is a test error!");
+    </script>
 </body>
 
 <!-- Custom PostBody code is injected here -->

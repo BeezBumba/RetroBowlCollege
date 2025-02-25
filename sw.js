@@ -64,7 +64,8 @@ const ASSETS_TO_CACHE = [
   '/html5game/snd_success.ogg',
   '/html5game/snd_tackle.ogg',
   '/html5game/snd_throw.ogg',
-  '/html5game/snd_timeout.ogg' 
+  '/html5game/snd_timeout.ogg',
+  '/html5game/snd_music_co.ogg'
 ];
 
 // Install the Service Worker and cache the assets

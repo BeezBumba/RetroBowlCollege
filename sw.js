@@ -5,6 +5,7 @@ const ASSETS_TO_CACHE = [
   '/register_sw.js',
   '/manifest.json',
   '/poki-sdk.js',
+  '/favicon.ico',
   '/rbc192.png',
   '/rbc512.png',
   '/rbc64.png',

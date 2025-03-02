@@ -110,6 +110,5 @@ self.addEventListener('fetch', event => {
         }
         return fetch(event.request); // Fetch from network
       })
-      .catch(() => caches.match('/offline.html')) // Serve offline page if network request fails
   );
 });

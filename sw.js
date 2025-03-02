@@ -66,11 +66,11 @@ const ASSETS_TO_CACHE = [
   '/html5game/snd_tackle.ogg',
   '/html5game/snd_throw.ogg',
   '/html5game/snd_timeout.ogg',
+  '/html5game/savedata1.ini',
   '/html5game/savedata2.ini',
   '/html5game/savedata3.ini',
   '/html5game/savedata4.ini',
   '/html5game/savedata5.ini',
-  '/html5game/rb_save_-1.json',
   '/html5game/snd_music_co.ogg'
 ];
 

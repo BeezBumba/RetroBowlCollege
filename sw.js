@@ -2,6 +2,7 @@
 const CACHE_NAME = 'RETROBOWLCOLLEGE';
 const ASSETS_TO_CACHE = [
   '/index.html',
+  '/register_sw.js',
   '/manifest.json',
   '/poki-sdk.js',
   '/rbc192.png',

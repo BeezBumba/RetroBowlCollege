@@ -74,41 +74,63 @@ const ASSETS_TO_CACHE = [
 
 // Install the Service Worker and cache the assets
 self.addEventListener('install', event => {
+  console.log('Service Worker: Installing...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(ASSETS_TO_CACHE);
+        console.log('Service Worker: Cache opened.');
+        return cache.addAll(ASSETS_TO_CACHE)
+          .then(() => console.log('Service Worker: All assets cached successfully.'))
+          .catch(error => console.error('Service Worker: Asset caching failed:', error));
       })
   );
 });
 
 // Activate the Service Worker and remove old caches
 self.addEventListener('activate', event => {
+  console.log('Service Worker: Activating...');
   event.waitUntil(
     caches.keys()
       .then(cacheNames => {
+        console.log('Service Worker: Existing caches:', cacheNames);
         return Promise.all(
           cacheNames.map(cache => {
             if (cache !== CACHE_NAME) {
-              console.log('Deleting old cache:', cache);
+              console.log('Service Worker: Deleting old cache:', cache);
               return caches.delete(cache);
             }
           })
         );
       })
+      .then(() => console.log('Service Worker: Activation complete.'))
+      .catch(error => console.error('Service Worker: Activation error:', error));
   );
 });
 
-// Fetch assets from the cache or the network
+// Fetch assets with Cache First strategy
 self.addEventListener('fetch', event => {
+  console.log('Service Worker: Fetch event for:', event.request.url);
   event.respondWith(
     caches.match(event.request)
       .then(response => {
         if (response) {
+          console.log('Service Worker: Serving from cache:', event.request.url);
           return response; // Serve from cache
         }
-        return fetch(event.request); // Fetch from network
+        console.log('Service Worker: Not in cache, fetching from network:', event.request.url);
+        return fetch(event.request)
+          .then(networkResponse => {
+            // Optionally cache the new network response
+            return caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, networkResponse.clone());
+              console.log('Service Worker: Fetched and cached:', event.request.url);
+              return networkResponse;
+            });
+          })
+          .catch(error => {
+            console.error('Service Worker: Network fetch failed:', error);
+          });
       })
+      .catch(error => console.error('Service Worker: Cache match error:', error));
   );
 });

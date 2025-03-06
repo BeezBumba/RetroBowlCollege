@@ -108,7 +108,14 @@ self.addEventListener('fetch', event => {
         if (response) {
           return response; // Serve from cache
         }
-        return fetch(event.request); // Fetch from network
+        return fetch(event.request)
+          .catch(error => {
+            console.error('Fetching failed:', error);
+            return new Response('Network error occurred', {
+              status: 408,
+              statusText: 'Network error'
+            });
+          });
       })
   );
 });

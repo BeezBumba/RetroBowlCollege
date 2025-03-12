@@ -6,6 +6,7 @@ const ASSETS_TO_CACHE = [
   '/manifest.json',
   'https://securepubads.g.doubleclick.net/tag/js/gpt.js',
   'https://imasdk.googleapis.com/js/sdkloader/ima3.js',
+  'https://api.poki.com/ads/settings',
   '/poki-sdk.js',
   '/favicon.ico',
   '/rbc192.png',

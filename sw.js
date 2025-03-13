@@ -8,7 +8,7 @@ self.addEventListener('message', (event) => {
     if (event.data.type === 'CACHE_URLS') {
         event.waitUntil(
             caches.open(KEY)
-                .then( (cache) => {
+                .then((cache) => {
                     return cache.addAll(event.data.payload);
                 })
         );
@@ -25,7 +25,7 @@ self.addEventListener("fetch", (e) => {
           return r;
         }
         console.log(`[Service Worker] Attempting live fetch: ${e.request.url}`);
-        const response = await fetch(e.request);
+        const response = await fetch(e.request, { mode: 'no-cors' });
         const cache = await caches.open(KEY);
         console.log(`[Service Worker] Caching new resource: ${e.request.url}`);
         cache.put(e.request, response.clone());

@@ -10,7 +10,6 @@ const ASSETS_TO_CACHE = [
   'https://geo.poki.io/',
   'https://c.amazon-adsystem.com/aax2/apstag.js',
   'https://securepubads.g.doubleclick.net/pagead/ima_ppub_config?ippd=https%3A%2F%2Fretrobowl-c.netlify.app%2Findex.html',
-  'https://s0.2mdn.net/instream/video/client.js',
   '/poki-sdk.js',
   '/favicon.ico',
   '/rbc192.png',

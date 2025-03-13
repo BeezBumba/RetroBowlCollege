@@ -8,7 +8,6 @@ const ASSETS_TO_CACHE = [
   'https://imasdk.googleapis.com/js/sdkloader/ima3.js',
   'https://api.poki.com/ads/settings',
   'https://geo.poki.io/',
-  'https://c.amazon-adsystem.com/aax2/apstag.js',
   'https://securepubads.g.doubleclick.net/pagead/ima_ppub_config?ippd=https%3A%2F%2Fretrobowl-c.netlify.app%2Findex.html',
   '/poki-sdk.js',
   '/favicon.ico',

@@ -5906,8 +5906,8 @@
                       Z.sent(), (Z.label = 2);
                     case 2:
                       return (
-                        w.push((0, b.Z)("https://securepubads.g.doubleclick.net/tag/js/gpt.js")),
-                        h || w.push((0, b.Z)("https://imasdk.googleapis.com/js/sdkloader/ima3.js")),
+                        w.push((0, b.Z)("/gpt.js")),
+                        h || w.push((0, b.Z)("/ima3.js")),
                         n.Z.familyFriendly || n.Z.nonPersonalized ? (n.Z.familyFriendly && this.display.enforceFamilyFriendlyFlow(), (0, n.w)("nonPersonalized", "true"), this.display.enforceNonPersonalized()) : w.push((0, b.Z)("https://a.poki.com/prebid/prebid8.16.0.js"), (0, b.Z)("https://c.amazon-adsystem.com/aax2/apstag.js")),
                         this.display.setupSlotRenderEndedListener(),
                         [

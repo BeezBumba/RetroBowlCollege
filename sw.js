@@ -25,7 +25,7 @@ self.addEventListener("fetch", (e) => {
           return r;
         }
         console.log(`[Service Worker] Attempting live fetch: ${e.request.url}`);
-        const response = await fetch(e.request, { mode: 'no-cors' });
+        const response = await fetch(e.request);
         const cache = await caches.open(KEY);
         console.log(`[Service Worker] Caching new resource: ${e.request.url}`);
         cache.put(e.request, response.clone());

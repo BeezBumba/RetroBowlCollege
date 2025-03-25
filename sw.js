@@ -1,4 +1,3 @@
-// Define the cache name and the assets to cache
 const CACHE_NAME = 'RETROBOWLCOLLEGE';
 const ASSETS_TO_CACHE = [
   '/index.html',
@@ -68,43 +67,42 @@ const ASSETS_TO_CACHE = [
   '/html5game/snd_music_co.ogg'
 ];
 
-// Install the Service Worker and cache the assets
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(ASSETS_TO_CACHE);
-      })
-  );
+self.addEventListener('install', (event) => {
+    console.log('[Service Worker] Install event triggered');
+    event.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => {
+            console.log('[Service Worker] Caching files:', FILES_TO_CACHE);
+            return cache.addAll(FILES_TO_CACHE);
+        }).catch((err) => {
+            console.error('[Service Worker] Failed to cache files during install:', err);
+        })
+    );
+    self.skipWaiting();
+    console.log('[Service Worker] skipWaiting called');
 });
 
-// Activate the Service Worker and remove old caches
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys()
-      .then(cacheNames => {
-        return Promise.all(
-          cacheNames.map(cache => {
-            if (cache !== CACHE_NAME) {
-              console.log('Deleting old cache:', cache);
-              return caches.delete(cache);
+self.addEventListener('fetch', (event) => {
+    console.log(`[Service Worker] Fetch event triggered for: ${event.request.url}`);
+    event.respondWith(
+        caches.match(event.request).then((response) => {
+            if (response) {
+                console.log(`[Service Worker] Serving cached resource: ${event.request.url}`);
+                return response; // Serve from cache
             }
-          })
-        );
-      })
-  );
-});
-
-// Fetch assets from the cache or the network
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response; // Serve from cache
-        }
-        return fetch(event.request); // Fetch from network
-      })
-  );
+            console.log(`[Service Worker] Resource not found in cache. Fetching from network: ${event.request.url}`);
+            return fetch(event.request).then((networkResponse) => {
+                // Cache the newly fetched resource
+                return caches.open(CACHE_NAME).then((cache) => {
+                    console.log(`[Service Worker] Caching new resource: ${event.request.url}`);
+                    cache.put(event.request, networkResponse.clone());
+                    return networkResponse;
+                }).catch((err) => {
+                    console.error('[Service Worker] Failed to cache new resource:', err);
+                    return networkResponse;
+                });
+            });
+        }).catch((err) => {
+            console.error('[Service Worker] Fetch failed:', err);
+        })
+    );
 });

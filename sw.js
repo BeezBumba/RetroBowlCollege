@@ -1,108 +1,52 @@
-const CACHE_NAME = 'RETROBOWLCOLLEGE';
-const ASSETS_TO_CACHE = [
-  '/index.html',
-  '/manifest.json',
-  '/poki-sdk.js',
-  '/rbc192.png',
-  '/rbc512.png',
-  '/rbc64.png',
-  '/scripts/5443f10e0bfac1bb0eb31054b8513ef81e6cc7c1/poki-sdk-core-5443f10e0bfac1bb0eb31054b8513ef81e6cc7c1.js',
-  '/html5game/sound/worklets/audio-worklet.js',
-  '/html5game/v2/Competitions_CO.txt',
-  '/html5game/v2/Conferences_CO.txt',
-  'html5game//v2/Rounds_CO.txt',
-  'html5game//v2/Schedule_CO.txt',
-  '/html5game/v2/Teams_CO.txt',
-  '/html5game/v2/uniforms_default_CO.txt',
-  '/html5game/Achievements.txt',
-  '/html5game/Charities.txt',
-  '/html5game/Cities_CO.txt',
-  '/html5game/Colleges.txt',
-  '/html5game/Editor.json',
-  '/html5game/EpilogueValues_CO.txt',
-  '/html5game/Hobbies_CO.txt',
-  '/html5game/LanguageUS.txt',
-  '/html5game/LanguageUS_CO.txt',
-  '/html5game/MajorMinor_CO.txt',
-  '/html5game/Names_F0.txt',
-  '/html5game/Names_F1.txt',
-  '/html5game/Names_L.txt',
-  '/html5game/PlayerRecords.txt',
-  '/html5game/ProTeams_CO.txt',
-  '/html5game/RetroBowl.js',
-  '/html5game/RetroBowl_texture_0.png',
-  '/html5game/RetroBowl_texture_1.png',
-  '/html5game/RetroBowl_texture_2.png',
-  '/html5game/RetroBowl_texture_3.png',
-  '/html5game/Shopping.txt',
-  '/html5game/Teams.txt',
-  '/html5game/Traits_CO.txt',
-  '/html5game/splash.png',
-  '/html5game/uph_poki.js',
-  '/html5game/snd_audible.ogg',
-  '/html5game/snd_audience_dis.ogg',
-  '/html5game/snd_audience_fg.ogg',
-  '/html5game/snd_audience_idle.ogg',
-  '/html5game/snd_beep.ogg',
-  '/html5game/snd_beep2.ogg',
-  '/html5game/snd_bounce.ogg',
-  '/html5game/snd_click.ogg',
-  '/html5game/snd_co_brass1.ogg',
-  '/html5game/snd_co_brass2.ogg',
-  '/html5game/snd_co_brass3.ogg',
-  '/html5game/snd_co_brass4.ogg',
-  '/html5game/snd_drink.ogg',
-  '/html5game/snd_error.ogg',
-  '/html5game/snd_kick.ogg',
-  '/html5game/snd_oof1.ogg',
-  '/html5game/snd_oof2.ogg',
-  '/html5game/snd_oof3.ogg',
-  '/html5game/snd_post.ogg',
-  '/html5game/snd_purchase.ogg',
-  '/html5game/snd_starrating.ogg',
-  '/html5game/snd_success.ogg',
-  '/html5game/snd_tackle.ogg',
-  '/html5game/snd_throw.ogg',
-  '/html5game/snd_timeout.ogg',
-  '/html5game/snd_music_co.ogg'
-];
+const CACHE_NAME = 'GAME_CACHE_V1';
 
 self.addEventListener('install', (event) => {
-    console.log('[Service Worker] Install event triggered');
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            console.log('[Service Worker] Caching files:', FILES_TO_CACHE);
-            return cache.addAll(FILES_TO_CACHE);
-        }).catch((err) => {
-            console.error('[Service Worker] Failed to cache files during install:', err);
-        })
-    );
-    self.skipWaiting();
-    console.log('[Service Worker] skipWaiting called');
+  self.skipWaiting();
 });
 
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
+// Cache URLs sent from the page
+self.addEventListener('message', (event) => {
+  const { type, payload } = event.data || {};
+  if (type !== 'CACHE_URLS' || !Array.isArray(payload)) return;
+
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    await Promise.all(payload.map(async (url) => {
+      try {
+        const req = new Request(url, { credentials: 'same-origin' });
+        const res = await fetch(req);
+        if (res.ok) await cache.put(req, res.clone());
+      } catch (_) {
+        // Skip if fetch fails
+      }
+    }));
+  })());
+});
+
+// Runtime caching: cache-first, then network
 self.addEventListener('fetch', (event) => {
-    console.log(`[Service Worker] Fetch event triggered for: ${event.request.url}`);
-    event.respondWith(
-        caches.match(event.request).then((response) => {
-            if (response) {
-                console.log(`[Service Worker] Serving cached resource: ${event.request.url}`);
-                return response; // Serve from cache
-            }
-            console.log(`[Service Worker] Resource not found in cache. Fetching from network: ${event.request.url}`);
-            return fetch(event.request).then((networkResponse) => {
-                // Cache the newly fetched resource
-                return caches.open(CACHE_NAME).then((cache) => {
-                    console.log(`[Service Worker] Caching new resource: ${event.request.url}`);
-                    cache.put(event.request, networkResponse.clone());
-                    return networkResponse;
-                }).catch((err) => {
-                    console.error('[Service Worker] Failed to cache new resource:', err);
-                    return networkResponse;
-                });
-            });
-        }).catch((err) => {
-            console.error('[Service Worker] Fetch failed:', err);
-        })
-    );
+  const req = event.request;
+  const url = new URL(req.url);
+
+  // Same-origin only
+  if (req.method !== 'GET' || url.origin !== location.origin) return;
+
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    const cached = await cache.match(req);
+    if (cached) return cached;
+
+    try {
+      const res = await fetch(req);
+      if (res.ok) event.waitUntil(cache.put(req, res.clone()));
+      return res;
+    } catch (err) {
+      // Optionally return a fallback asset here
+      throw err;
+    }
+  })());
 });
